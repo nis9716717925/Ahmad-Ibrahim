@@ -8,7 +8,8 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
-    "build": "turbo run build",
+    "build": "turbo run build --filter=@connect/web...",
+    "build:web": "turbo run build --filter=@connect/web...",
     "lint": "turbo run lint",
     "db:generate": "npm run generate --workspace=@connect/api",
     "db:migrate": "npm run migrate --workspace=@connect/api",
@@ -20,5 +21,9 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "overrides": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
   }
 }
