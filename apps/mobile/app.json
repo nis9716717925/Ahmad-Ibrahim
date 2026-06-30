@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Ahmad Ibrahim",
+    "slug": "ahmad-ibrahim",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "connect",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.connect.platform"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1349e1"
+      },
+      "package": "com.connect.platform"
+    },
+    "plugins": ["expo-router", "expo-location"]
+  }
+}

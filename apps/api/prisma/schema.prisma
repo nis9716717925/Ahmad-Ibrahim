@@ -1,0 +1,391 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  STAFF
+  AUDITOR
+  COMPANY_ADMIN
+  FACILITY_MANAGER
+  TRAINEE
+  CLIENT
+}
+
+enum AuditStatus {
+  DRAFT
+  SCHEDULED
+  IN_PROGRESS
+  UNDER_REVIEW
+  COMPLETED
+  FOLLOW_UP
+}
+
+enum CorrectiveActionStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  VERIFIED
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  phone          String?
+  role           UserRole  @default(CLIENT)
+  isActive       Boolean   @default(true)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  facilityId     String?
+  facility       Facility? @relation(fields: [facilityId], references: [id])
+  auditsAssigned Audit[]   @relation("AuditorAudits")
+  auditsCreated  Audit[]   @relation("CreatedAudits")
+  enrollments    Enrollment[]
+  certificates   Certificate[]
+  fieldCheckIns  FieldCheckIn[]
+  liveSessions   LiveSession[] @relation("SessionHost")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([organizationId])
+  @@index([role])
+}
+
+model Organization {
+  id          String     @id @default(cuid())
+  name        String
+  type        String     @default("company")
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  country     String?
+  users       User[]
+  facilities  Facility[]
+  audits      Audit[]
+  enrollments Enrollment[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Facility {
+  id             String       @id @default(cuid())
+  name           String
+  address        String?
+  city           String?
+  country        String?
+  latitude       Float?
+  longitude      Float?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users          User[]
+  audits         Audit[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+}
+
+model ServiceType {
+  id          String              @id @default(cuid())
+  name        String
+  slug        String              @unique
+  category    String
+  description String?
+  isActive    Boolean             @default(true)
+  templates   ChecklistTemplate[]
+  audits      Audit[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+model ChecklistTemplate {
+  id            String      @id @default(cuid())
+  name          String
+  version       Int         @default(1)
+  serviceTypeId String
+  serviceType   ServiceType @relation(fields: [serviceTypeId], references: [id], onDelete: Cascade)
+  items         Json
+  scoringRules  Json?
+  isActive      Boolean     @default(true)
+  audits        Audit[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([serviceTypeId])
+}
+
+model Audit {
+  id                  String             @id @default(cuid())
+  referenceNumber     String             @unique
+  status              AuditStatus        @default(DRAFT)
+  priority            String             @default("MEDIUM")
+  industry            String?
+  gpsRequired         Boolean            @default(false)
+  contactPerson       String?
+  siteLocation        String?
+  scheduledTime       String?
+  generalInfo         Json?
+  sectionScores       Json?
+  aiSummary           String?
+  serviceTypeId       String
+  serviceType         ServiceType        @relation(fields: [serviceTypeId], references: [id])
+  templateId          String
+  template            ChecklistTemplate  @relation(fields: [templateId], references: [id])
+  organizationId      String
+  organization        Organization       @relation(fields: [organizationId], references: [id])
+  facilityId          String?
+  facility            Facility?          @relation(fields: [facilityId], references: [id])
+  auditorId           String?
+  auditor             User?              @relation("AuditorAudits", fields: [auditorId], references: [id])
+  createdById         String
+  createdBy           User               @relation("CreatedAudits", fields: [createdById], references: [id])
+  scheduledAt         DateTime?
+  startedAt           DateTime?
+  completedAt         DateTime?
+  score               Float?
+  maxScore            Float?
+  responses           Json?
+  notes               String?
+  reportUrl           String?
+  correctiveActions   CorrectiveAction[]
+  findings            AuditFinding[]
+  evidence            AuditEvidence[]
+  timelineEvents      AuditTimelineEvent[]
+  fieldCheckIns       FieldCheckIn[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([organizationId])
+  @@index([auditorId])
+  @@index([status])
+}
+
+model AuditFinding {
+  id               String   @id @default(cuid())
+  auditId          String
+  audit            Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  severity         String   @default("MEDIUM")
+  responsiblePerson String?
+  dueDate          DateTime?
+  status           String   @default("OPEN")
+  aiSuggestion     String?
+  checklistItemId  String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([auditId])
+}
+
+model AuditEvidence {
+  id        String   @id @default(cuid())
+  auditId   String
+  audit     Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  type      String
+  fileName  String?
+  fileUrl   String?
+  note      String?
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime @default(now())
+
+  @@index([auditId])
+}
+
+model AuditTimelineEvent {
+  id        String   @id @default(cuid())
+  auditId   String
+  audit     Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  event     String
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([auditId])
+}
+
+model CorrectiveAction {
+  id                String                 @id @default(cuid())
+  auditId           String
+  audit             Audit                  @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  title             String
+  description       String?
+  rootCause         String?
+  correctiveAction  String?
+  preventiveAction  String?
+  assignedTo        String?
+  severity          String?
+  aiSuggestion      String?
+  status            CorrectiveActionStatus @default(OPEN)
+  dueDate           DateTime?
+  resolvedAt        DateTime?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  @@index([auditId])
+}
+
+model FieldCheckIn {
+  id        String   @id @default(cuid())
+  auditId   String
+  audit     Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   @default("CHECK_IN")
+  latitude  Float
+  longitude Float
+  accuracy  Float?
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([auditId])
+}
+
+model Course {
+  id           String        @id @default(cuid())
+  title        String
+  slug         String        @unique
+  description  String?
+  thumbnailUrl String?
+  duration     Int?
+  isPublished  Boolean       @default(false)
+  modules      Json?
+  enrollments  Enrollment[]
+  exams        Exam[]
+  liveSessions LiveSession[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Enrollment {
+  id             String           @id @default(cuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id])
+  courseId       String
+  course         Course           @relation(fields: [courseId], references: [id])
+  organizationId String?
+  organization   Organization?    @relation(fields: [organizationId], references: [id])
+  status         EnrollmentStatus @default(ENROLLED)
+  progress       Float            @default(0)
+  examScore      Float?
+  completedAt    DateTime?
+  certificate    Certificate?
+  examAttempts   ExamAttempt[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([userId, courseId])
+  @@index([userId])
+}
+
+model Exam {
+  id           String        @id @default(cuid())
+  courseId     String
+  course       Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title        String
+  questions    Json
+  passingScore Float         @default(70)
+  timeLimitMin Int?
+  attempts     ExamAttempt[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([courseId])
+}
+
+model ExamAttempt {
+  id           String     @id @default(cuid())
+  examId       String
+  exam         Exam       @relation(fields: [examId], references: [id], onDelete: Cascade)
+  enrollmentId String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  answers      Json
+  score        Float
+  passed       Boolean
+  completedAt  DateTime   @default(now())
+
+  @@index([enrollmentId])
+}
+
+model LiveSession {
+  id          String   @id @default(cuid())
+  courseId    String?
+  course      Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  title       String
+  description String?
+  meetLink    String
+  meetCode    String?
+  scheduledAt DateTime
+  durationMin Int      @default(60)
+  hostId      String?
+  host        User?    @relation("SessionHost", fields: [hostId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([courseId])
+  @@index([scheduledAt])
+}
+
+model AiChatSession {
+  id        String          @id @default(cuid())
+  userId    String?
+  title     String          @default("New conversation")
+  messages  AiChatMessage[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([userId])
+}
+
+model AiChatMessage {
+  id        String        @id @default(cuid())
+  sessionId String
+  session   AiChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String
+  content   String
+  createdAt DateTime      @default(now())
+
+  @@index([sessionId])
+}
+
+model Certificate {
+  id             String     @id @default(cuid())
+  certificateNo  String     @unique
+  userId         String
+  user           User       @relation(fields: [userId], references: [id])
+  enrollmentId   String     @unique
+  enrollment     Enrollment @relation(fields: [enrollmentId], references: [id])
+  issuedAt       DateTime   @default(now())
+  expiresAt      DateTime?
+  pdfUrl         String?
+}
+
+model CrmContact {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String?
+  phone     String?
+  company   String?
+  status    String   @default("lead")
+  notes     String?
+  source    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
