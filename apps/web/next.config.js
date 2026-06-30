@@ -4,6 +4,12 @@ const path = require('path');
 const nextConfig = {
   transpilePackages: ['@connect/shared'],
   outputFileTracingRoot: path.join(__dirname, '../../'),
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 };
 
 module.exports = nextConfig;

@@ -8,8 +8,8 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
-    "build": "turbo run build --filter=@connect/web...",
-    "build:web": "turbo run build --filter=@connect/web...",
+    "build": "npm run build -w @connect/shared && npm run build -w @connect/web",
+    "build:web": "npm run build -w @connect/shared && npm run build -w @connect/web",
     "lint": "turbo run lint",
     "db:generate": "npm run generate --workspace=@connect/api",
     "db:migrate": "npm run migrate --workspace=@connect/api",
