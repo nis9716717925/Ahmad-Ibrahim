@@ -13,6 +13,7 @@ import { CertificationsSection } from '@/components/home/CertificationsSection';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { NewsSection } from '@/components/home/NewsSection';
 import { ContactSection } from '@/components/home/ContactSection';
+import { MembershipSection } from '@/components/home/MembershipSection';
 import { CTA } from '@/components/home/CTA';
 
 type Props = {
@@ -38,6 +39,7 @@ export default async function HomePage({ params }: Props) {
       <CertificationsSection />
       <TestimonialsSection />
       <NewsSection />
+      <MembershipSection />
       <ContactSection />
       <CTA />
     </>

@@ -21,6 +21,7 @@ const megaServiceKeys = [
 ] as const;
 
 const navLinkKeys = [
+  { key: 'pricing', href: '/membership' },
   { key: 'industries', href: '/services#industries' },
   { key: 'platform', href: '/admin/audits' },
   { key: 'academy', href: '/academy' },
@@ -150,21 +151,13 @@ export function Header() {
             <LanguageSwitcher transparent={transparent} />
             <Link
               href="/portal"
-              className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
-                transparent ? 'text-white/90 hover:text-white' : 'text-slate-600 hover:text-secondary-600'
-              }`}
-            >
-              {t('portal')}
-            </Link>
-            <Link
-              href="/login"
               className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
                 transparent
                   ? 'border border-white/20 text-white hover:bg-white/10'
                   : 'border border-slate-200 text-primary-900 hover:bg-slate-50 dark:border-slate-600 dark:text-white'
               }`}
             >
-              {t('signIn')}
+              {t('portal')}
             </Link>
             <Link href="/contact" className="btn-primary !rounded-xl !px-5 !py-2.5 !text-sm">
               {t('getStarted')}
@@ -234,8 +227,7 @@ export function Header() {
                 <div className="mb-3 flex justify-center">
                   <LanguageSwitcher />
                 </div>
-                <Link href="/contact" className="btn-primary w-full text-center">{t('getStarted')}</Link>
-                <Link href="/login" className="btn-secondary w-full text-center">{t('signIn')}</Link>
+                <Link href="/portal" className="btn-primary w-full text-center">{t('portal')}</Link>
               </div>
             </motion.div>
           </>

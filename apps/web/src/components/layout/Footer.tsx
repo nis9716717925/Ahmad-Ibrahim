@@ -31,10 +31,11 @@ export async function Footer() {
       title: t('company'),
       links: [
         { label: t('aboutUs'), href: '/about' },
+        { label: tNav('pricing'), href: '/membership' },
         { label: t('industries'), href: '/services#industries' },
         { label: tNav('contact'), href: '/contact' },
         { label: t('careers'), href: '/contact' },
-        { label: t('signIn'), href: '/login' },
+        { label: t('clientPortal'), href: '/portal' },
       ],
     },
   ];

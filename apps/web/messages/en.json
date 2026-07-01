@@ -6,6 +6,7 @@
   "nav": {
     "tagline": "Compliance & Consulting",
     "services": "Services",
+    "pricing": "Pricing",
     "industries": "Industries",
     "platform": "Platform",
     "academy": "Academy",
@@ -271,5 +272,87 @@
   },
   "common": {
     "explore": "Explore"
+  },
+  "membership": {
+    "badge": "Membership",
+    "title": "Plans built for every stage of compliance",
+    "description": "From single-site audits to enterprise-wide programs — choose a membership that scales with your organization.",
+    "pageTitle": "Membership Plans",
+    "pageDescription": "Transparent pricing for audits, platform access, training, and AI-powered compliance tools.",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "save": "Save 20%",
+    "popular": "Most popular",
+    "custom": "Custom",
+    "perMonth": "per month",
+    "perYear": "per year",
+    "buyNow": "Buy now",
+    "contactSales": "Contact sales",
+    "footnote": "All plans include a 14-day satisfaction guarantee. Prices in USD. VAT may apply.",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "description": "For single facilities getting started with digital compliance."
+      },
+      "professional": {
+        "name": "Professional",
+        "description": "For growing teams that need audits, AI, and training in one platform."
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "For multi-site organizations with dedicated support and custom SLAs."
+      }
+    },
+    "features": {
+      "f1": "Client portal access",
+      "f2": "Digital audit checklists",
+      "f3": "Compliance score dashboard",
+      "f4": "PDF audit reports",
+      "f5": "Email support",
+      "f6": "Unlimited scheduled audits",
+      "f7": "AI assistant & CAPA generation",
+      "f8": "Academy courses included",
+      "f9": "Dedicated account manager",
+      "f10": "Custom integrations & API access"
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "subtitle": "Complete your membership purchase securely.",
+    "backToPlans": "Back to plans",
+    "secureCheckout": "Secure checkout",
+    "billingDetails": "Billing details",
+    "company": "Company name",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Work email",
+    "payment": "Payment",
+    "demoNote": "Demo checkout — no real charges. Use any test card details.",
+    "cardName": "Name on card",
+    "cardNumber": "Card number",
+    "expiry": "Expiry",
+    "cvc": "CVC",
+    "orderSummary": "Order summary",
+    "selectPlan": "Membership plan",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "plan": "Plan",
+    "subtotal": "Subtotal",
+    "tax": "Tax (5%)",
+    "total": "Total",
+    "processing": "Processing...",
+    "completePurchase": "Complete purchase",
+    "guarantee": "14-day money-back guarantee",
+    "planNames": {
+      "starter": "Starter",
+      "professional": "Professional",
+      "enterprise": "Enterprise"
+    },
+    "successTitle": "Payment successful!",
+    "successDescription": "Your membership is active. A confirmation has been sent to your email.",
+    "orderNumber": "Order number",
+    "confirmationSent": "Confirmation sent to",
+    "goToPortal": "Go to client portal",
+    "viewPlans": "View all plans"
   }
 }
