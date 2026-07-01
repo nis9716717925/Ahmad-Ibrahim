@@ -1,4 +1,20 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+function resolveApiUrl() {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '');
+  }
+  if (typeof window !== 'undefined') {
+    const { hostname, origin } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:4000';
+    }
+    return origin;
+  }
+  return process.env.API_URL?.replace(/\/$/, '') ?? 'http://localhost:4000';
+}
+
+export function getApiUrl() {
+  return resolveApiUrl();
+}
 
 function getToken() {
   return typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -15,7 +31,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   let res: Response;
   try {
-    res = await fetch(`${API_URL}/api/v1${path}`, {
+    res = await fetch(`${getApiUrl()}/api/v1${path}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -24,8 +40,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       },
     });
   } catch {
+    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
     throw new ApiError(
-      `Cannot reach the API at ${API_URL}. Start it with: cd apps/api && npm run dev`,
+      isLocal
+        ? `Cannot reach the API at ${getApiUrl()}. Start it with: cd apps/api && npm run dev`
+        : 'Cannot reach the API. Set API_URL in Vercel (your deployed backend URL) and redeploy.',
       true,
     );
   }
@@ -302,12 +321,12 @@ export const api = {
 
   getCertificatePdfUrl: (id: string) => {
     const token = getToken();
-    return `${API_URL}/api/v1/certificates/${id}/pdf${token ? `?token=${token}` : ''}`;
+    return `${getApiUrl()}/api/v1/certificates/${id}/pdf${token ? `?token=${token}` : ''}`;
   },
 
   downloadCertificate: async (id: string) => {
     const token = getToken();
-    const res = await fetch(`${API_URL}/api/v1/certificates/${id}/pdf`, {
+    const res = await fetch(`${getApiUrl()}/api/v1/certificates/${id}/pdf`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     if (!res.ok) throw new Error('Download failed');
@@ -336,4 +355,4 @@ export const api = {
     request<{ role: string; content: string; createdAt: string }[]>(`/ai/sessions/${sessionId}/messages`),
 };
 
-export { API_URL };
+export { getApiUrl as API_URL };

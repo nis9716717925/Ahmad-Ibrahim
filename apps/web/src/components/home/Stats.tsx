@@ -1,25 +1,57 @@
-const stats = [
-  { value: '500+', label: 'Audits completed' },
-  { value: '50+', label: 'Corporate clients' },
-  { value: '2,000+', label: 'Trainees certified' },
-  { value: '15+', label: 'Service categories' },
-];
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { STATS } from './data';
+import { FadeIn, Stagger, StaggerItem } from '@/components/ui/FadeIn';
+
+function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !started.current) {
+        started.current = true;
+        const dur = 1800;
+        const start = performance.now();
+        const tick = (now: number) => {
+          const p = Math.min((now - start) / dur, 1);
+          const eased = 1 - (1 - p) ** 3;
+          setCount(Math.floor(eased * value));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+    }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [value]);
+
+  return (
+    <span ref={ref}>
+      {count.toLocaleString()}{suffix}
+    </span>
+  );
+}
 
 export function Stats() {
   return (
-    <section className="border-b border-slate-200/80 bg-white py-10 sm:py-14">
-      <div className="container-page">
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-2xl border border-slate-100 bg-slate-50 p-5 text-center transition hover:border-brand-100 hover:shadow-lg sm:p-6"
-            >
-              <p className="text-2xl font-extrabold text-brand-700 sm:text-3xl lg:text-4xl">{stat.value}</p>
-              <p className="mt-1.5 text-xs font-medium text-slate-600 sm:text-sm">{stat.label}</p>
-            </div>
+    <section className="relative border-y border-slate-200/80 bg-white py-16 dark:border-slate-800 dark:bg-primary-950 sm:py-20">
+      <div className="absolute inset-0 bg-mesh-light opacity-60" aria-hidden />
+      <div className="container-page relative">
+        <Stagger className="grid grid-cols-2 gap-8 lg:grid-cols-4 lg:gap-12">
+          {STATS.map((s) => (
+            <StaggerItem key={s.label} className="text-center">
+              <p className="text-3xl font-extrabold tracking-tight text-primary-900 dark:text-white sm:text-4xl lg:text-5xl">
+                <AnimatedNumber value={s.value} suffix={s.suffix} />
+              </p>
+              <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">{s.label}</p>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );

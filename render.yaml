@@ -1,0 +1,33 @@
+# Deploy the API on Render (free tier), then connect Vercel to it.
+#
+# 1. Push this repo to GitHub
+# 2. Go to https://dashboard.render.com → New → Blueprint
+# 3. Connect the repo — Render reads this file automatically
+# 4. After deploy, copy the API URL (e.g. https://ahmad-ibrahim-api.onrender.com)
+# 5. In Vercel → Settings → Environment Variables, add:
+#      API_URL = https://ahmad-ibrahim-api.onrender.com
+# 6. Redeploy the Vercel project
+
+services:
+  - type: web
+    name: ahmad-ibrahim-api
+    runtime: node
+    region: frankfurt
+    plan: free
+    rootDir: apps/api
+    buildCommand: npm install --prefix ../.. && npx prisma generate && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: DATABASE_URL
+        value: file:/data/dev.db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        sync: false
+    disk:
+      name: sqlite-data
+      mountPath: /data
+      sizeGB: 1
