@@ -1,15 +1,22 @@
 function resolveApiUrl() {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '');
-  }
   if (typeof window !== 'undefined') {
     const { hostname, origin } = window.location;
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost:4000';
+      return (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000').replace(/\/$/, '');
     }
+    // Production: same-origin proxy via app/api/v1/[...path]/route.ts
     return origin;
   }
-  return process.env.API_URL?.replace(/\/$/, '') ?? 'http://localhost:4000';
+  if (process.env.API_URL) {
+    return process.env.API_URL.replace(/\/$/, '').replace(/\/api\/v1$/, '');
+  }
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '').replace(/\/api\/v1$/, '');
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return 'http://localhost:4000';
 }
 
 export function getApiUrl() {
@@ -50,7 +57,17 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new ApiError((err as { message?: string }).message ?? `API error: ${res.status}`);
+    const message = (err as { message?: string }).message;
+    if (res.status === 404) {
+      throw new ApiError(
+        message ??
+          'API route not found. Deploy the backend (apps/api) and set API_URL in Vercel to its URL, then redeploy the web app.',
+      );
+    }
+    if (res.status === 503 || res.status === 502) {
+      throw new ApiError(message ?? `API error: ${res.status}`, true);
+    }
+    throw new ApiError(message ?? `API error: ${res.status}`);
   }
   if (res.status === 204) return undefined as T;
   return res.json();
