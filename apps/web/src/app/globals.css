@@ -26,6 +26,10 @@
   ::selection {
     @apply bg-secondary-100 text-primary-900;
   }
+
+  [dir='rtl'] {
+    font-feature-settings: 'cv11', 'ss01';
+  }
 }
 
 @layer components {
